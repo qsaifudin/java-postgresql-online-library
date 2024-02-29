@@ -1,68 +1,136 @@
 <template>
   <div class="">
-    <TabsComponent />
-    <div class="">
-      <FormBook />
-    </div>
-    <v-row >
-      <v-col v-for="book in books" :key="book.id" >
-    <v-card class="mx-auto" max-width="300" >
-      <v-img  class="ma-3" src="/book.svg" height="200px" ></v-img>
+    <NavComponent />
+    <v-snackbar v-model="snackbarSuccess" :timeout="timeout" vertical color="green">
+      Success Borrow Book
 
-      <v-divider></v-divider>
-      <v-card-title>{{ book.title }}</v-card-title>
-      <v-divider></v-divider>
-      <v-card-text class="text-justify">
-        {{ book.description }}
-      </v-card-text>
-      <v-card-text class="pt-0 mt-0">
-        <v-btn class="pt-0 mt-0" color="green-lighten-2" :loading="false"> Borrow Book </v-btn>
-      </v-card-text>
-    </v-card>
-  </v-col>
-  </v-row>
+      <template v-slot:actions>
+        <v-btn variant="text" @click="snackbarSuccess = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
+    <v-snackbar v-model="isError" :timeout="timeout" vertical color="pink">
+      <v-icon icon="mdi-close-circle"></v-icon> {{ errorContent }}
+      <template v-slot:actions>
+        <v-btn variant="text" @click="isError = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
+    <!-- <v-alert
+      v-if="isError"
+      color="#C51162"
+      theme="dark"
+      icon="mdi-close-circle"
+      class="mb-3"
+      border
+      variant="tonal"
+    >
+      {{ errorContent }}
+    </v-alert> -->
+    <v-if v-if="isAdmin">
+      <FormBook @runGetBook="getBooks" />
+    </v-if>
+    <div class="text-center" v-if="loadingGetBook">
+      <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+    </div>
+    <v-row>
+      <v-col v-for="book in books" :key="book.id">
+        <v-card class="mx-auto" width="305">
+          <v-img class="ma-3" src="/book.svg" height="200px"></v-img>
+
+          <v-divider></v-divider>
+          <v-card-title>{{ book.title }}</v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="text-justify">
+            {{ book.description }}
+          </v-card-text>
+          <v-card-text class="pt-0 mt-0">
+            <!-- Conditionally render "Borrow Book" button based on user role -->
+            <template v-if="!isAdmin">
+              <v-btn
+                class="pt-0 mt-0"
+                color="green-lighten-2"
+                :loading="loadingBorrow"
+                @click="borrowBook(book.id)"
+              >
+                Borrow Book
+              </v-btn>
+            </template>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </div>
 </template>
+
 <script>
+definePageMeta({
+  middleware: ["auth"],
+  // or middleware: 'auth'
+});
 export default {
   data: () => ({
     show: false,
-    books: [
-      {
-        id: 1,
-        title: "Top western road trips2",
-        description:
-          "I'm a thing. But, like most politicians, he promised more than he could deliver. You won't have time for sleeping, soldier, not with all the bed making you'll be doing. Then we'll go with that data file! Hey, you add a one and two zeros to that or we walk! You're going to do his laundry? I've got to find a way to escape.",
-        cover: "https://cdn.vuetifyjs.com/images/cards/sunshine.jpg",
-      },
-      {
-        id: 2,
-        title: "Another Book",
-        description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nunc id aliquet tincidunt, nisl nunc tincidunt nunc, id lacinia nunc mi in nunc. Sed id nunc euismod, lacinia nunc nec, aliquam nunc. Nulla facilisi. Nullam auctor, nunc id aliquet tincidunt, nisl nunc tincidunt nunc, id lacinia nunc mi in nunc.",
-        cover: "https://cdn.vuetifyjs.com/images/cards/sunshine.jpg",
-      },
-    ],
-    loading:false
+    books: [],
+    loadingBorrow: false,
+    loadingGetBook: false,
+    isAdmin: false,
+    isError: false,
+    snackbarSuccess: false,
+    errorContent: "",
+    timeout:3000
   }),
   methods: {
     async getBooks() {
-      this.loading = true;
+      this.loadingGetBook = true;
       try {
-        const config = useRuntimeConfig(); // Make sure useRuntimeConfig is available in Nuxt 3
-        console.log("🚀 ~ getBooks ~ config.public.BASE_URL:", config.public)
+        const config = useRuntimeConfig();
+        console.log("🚀 ~ getBooks ~ config.public.BASE_URL:", config.public);
         const response = await $fetch(config.public.BASE_URL + "/book");
         if (response.status === 200) {
           this.books = response.data;
         }
-        this.loading = false;
+        this.loadingGetBook = false;
       } catch (error) {
         console.error("Error :", error);
-        this.loading = false;
+        this.loadingGetBook = false;
+      }
+    },
+    async borrowBook(bookId) {
+      this.loadingBorrow = true;
+      this.isError = false;
+      try {
+        const config = useRuntimeConfig();
+        const userId = JSON.parse(localStorage.getItem("user")).id;
+        const response = await $fetch(config.public.BASE_URL + "/transaction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            bookId,
+            userId,
+          }),
+        });
+        if (response.success) {
+          console.log("Book borrowed successfully");
+          this.snackbarSuccess = true;
+        } else {
+          this.isError = true;
+          this.errorContent = response.message;
+          // Handle borrowing failure
+          console.error("Failed to borrow book:", response.message);
+        }
+      } catch (error) {
+        this.isError = true;
+        console.error("Error borrowing book:", error);
+      } finally {
+        this.loadingBorrow = false;
       }
     },
   },
   async mounted() {
+    // this.$toast.success('Berhasil menyimpan data')
+    this.isAdmin = localStorage.getItem("role") === "admin";
+    console.log("🚀 ~ mounted ~ this.isAdmin:", this.isAdmin);
     await this.getBooks();
   },
 };

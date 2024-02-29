@@ -25,13 +25,13 @@
                 rows="2"
                 row-height="20"
               ></v-textarea>
-              <v-file-input
+              <!-- <v-file-input
                 @change="onChangeCover"
                 :rules="rules"
                 accept="image/png, image/jpeg, image/bmp"
                 label="Input Cover"
                 prepend-icon="mdi-camera"
-              ></v-file-input>
+              ></v-file-input> -->
             </v-col>
           </v-row>
         </v-card-text>
@@ -43,7 +43,7 @@
 
           <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
 
-          <v-btn color="primary" text="Save" variant="tonal" @click="saveBook"></v-btn>
+          <v-btn color="primary" text="Save" variant="tonal" @click="saveBook" :loading="loading"></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -56,8 +56,9 @@ export default {
     dialog: false,
     title: "",
     description: "",
-    cover: null,
+    cover: '',
     rules: [(value) => !!value || "Cover is required"],
+    loading: false,
   }),
   methods: {
     convertToBase64(file) {
@@ -86,23 +87,24 @@ export default {
       try {
         const config = useRuntimeConfig();
         console.log("🚀 ~ saveBook ~ config:", config);
-
-        const response = await fetch(config.public.BASE_URL + "/book", {
+        this.loading=true;
+        const response = await $fetch(config.public.BASE_URL + "/book", {
           method: "POST",
           body: {
             title: this.title,
-            title: this.description,
+            description: this.description,
             cover: this.cover,
           },
         });
-        if (response.ok) {
-          // Book saved successfully
-          // Optionally, you can handle further actions like closing the dialog or refreshing the book list
+        if (response.status === 201) {
           this.dialog = false;
         } else {
           console.error("Failed to save book");
         }
+        this.$emit('runGetBook');
+        this.loading=false;
       } catch (error) {
+        this.loading=false;
         console.error("Error :", error);
       }
     },

@@ -3,7 +3,13 @@
     <v-card class="mx-auto pa-12 pb-8" elevation="8" max-width="448" rounded="lg">
       <div class="text-subtitle-1 text-medium-emphasis">Account</div>
 
-      <!-- Email Input Field -->
+      <v-text-field
+        v-model="nama"
+        density="compact"
+        placeholder="Name"
+        prepend-inner-icon="mdi-account-outline"
+        variant="outlined"
+      ></v-text-field>
       <v-text-field
         v-model="email"
         density="compact"
@@ -41,13 +47,13 @@
 
       <!-- Login Button -->
       <v-btn block class="mb-8" color="blue" size="large" @click="loginAction" :loading="loading">
-        Log In
+        Register
       </v-btn>
 
       <!-- Sign up link -->
       <v-card-text class="text-center">
-        <v-btn block variant="text"  color="blue" size="large" @click="navigateTo('register')" :loading="loading">
-        Register
+        <v-btn block variant="text"  color="blue" size="large" @click="navigateTo('login')" :loading="loading">
+        Login
       </v-btn>
       </v-card-text>
     </v-card>
@@ -59,6 +65,7 @@ definePageMeta({
 });
 
 const visible = ref(false);
+const nama = ref('');
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
@@ -70,12 +77,13 @@ const loginAction = async () => {
   loading.value = true;
   const config = useRuntimeConfig();
   try {
-    const response = await $fetch(`${config.public.BASE_URL}/user/login`, {
+    const response = await $fetch(`${config.public.BASE_URL}/user/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        nama: nama.value,
         email: email.value,
         password: password.value,
       }),
@@ -85,15 +93,8 @@ const loginAction = async () => {
     console.log("1111111");
     if (response.success) {
       console.log("🚀 ~ login ~ response:", response);
-      // Save user data to localStorage
-      let role = response.additionalData.role
-      if (process.client) {
-        localStorage.setItem("user", JSON.stringify(response.data));
-        localStorage.setItem("role", role);
-      }
-      console.log("🚀 ~ loginAction ~ role:", role)
 
-      navigateTo(role == "admin" ? "/admin" : "/user");
+      navigateTo("login");
     } else {
       console.log("222222");
       isError.value = true;

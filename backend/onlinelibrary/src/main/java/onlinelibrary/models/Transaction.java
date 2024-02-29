@@ -1,18 +1,32 @@
 package onlinelibrary.models;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
+import org.hibernate.annotations.UuidGenerator;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "transactions")
 public class Transaction {
-    private Date borrowedDate;
-    private Date returnDate;
-    private int status;
-    private int bookId;
-    private int userId;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    private String id;
+
+    private String bookId;
+    private String userId;
+    private LocalDateTime borrowedDate;
+    private LocalDateTime returnDate;
+    private String status;
 
     public Transaction() {
     }
 
-    public Transaction(int bookId, int userId, Date borrowedDate, Date returnDate, int status) {
+    public Transaction(String bookId, String userId, LocalDateTime borrowedDate, LocalDateTime returnDate, String status) {
         this.bookId = bookId;
         this.userId = userId;
         this.borrowedDate = borrowedDate;
@@ -20,45 +34,51 @@ public class Transaction {
         this.status = status;
     }
 
-    // Getters and setters for all the fields
+    public String getId() {
+        return id;
+    }
 
-    public int getBookId() {
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getBookId() {
         return bookId;
     }
 
-    public void setBookId(int bookId) {
+    public void setBookId(String bookId) {
         this.bookId = bookId;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public Date getBorrowedDate() {
+    public LocalDateTime getBorrowedDate() {
         return borrowedDate;
     }
 
-    public void setBorrowedDate(Date borrowedDate) {
+    public void setBorrowedDate(LocalDateTime borrowedDate) {
         this.borrowedDate = borrowedDate;
     }
 
-    public Date getReturnDate() {
+    public LocalDateTime getReturnDate() {
         return returnDate;
     }
 
-    public void setReturnDate(Date returnDate) {
+    public void setReturnDate(LocalDateTime returnDate) {
         this.returnDate = returnDate;
     }
 
-    public int getStatus() {
+    public String getSuccess() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 }

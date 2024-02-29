@@ -1,6 +1,11 @@
 <template>
     <div class="">
-        <MyCard/>
-        sfsf
+        
     </div>
 </template>
+<script>
+definePageMeta({
+  middleware: ["auth"]
+  // or middleware: 'auth'
+})
+</script>

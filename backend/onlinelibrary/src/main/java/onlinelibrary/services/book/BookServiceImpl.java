@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -44,10 +45,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public Response getBooks() {
         // Buat object list buku yang diisi dari repository find all
-        List<Book> books = bookRepository.findAll();
+        List<Book> books = bookRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // Buat object response
-        Response response = new Response(HttpStatus.OK.value(), "success", books);
+        Response response = new Response(HttpStatus.OK.value(), "success", books,true);
         return response;
     }
 
@@ -58,7 +59,7 @@ public class BookServiceImpl implements BookService {
             throw new NoSuchElementException("Book is not found!");
         });
 
-        return new Response(HttpStatus.OK.value(), "success", book);
+        return new Response(HttpStatus.OK.value(), "success", book,true);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class BookServiceImpl implements BookService {
         // Simpan buku
         book = bookRepository.save(book);
 
-        return new Response(HttpStatus.OK.value(), "success updated", book);
+        return new Response(HttpStatus.OK.value(), "success updated", book,true);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class BookServiceImpl implements BookService {
         // // Simpan buku
         // book = bookRepository.save(book);
 
-        return new Response(HttpStatus.OK.value(), "success deleted", null);
+        return new Response(HttpStatus.OK.value(), "success deleted", null,true);
     }
 
 }

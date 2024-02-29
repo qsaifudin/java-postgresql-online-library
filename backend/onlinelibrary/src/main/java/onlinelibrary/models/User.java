@@ -29,11 +29,17 @@ public class User {
     }
 
     public User(String id, String nama, String email, String password) {
-        super();
-        this.id = id;
         this.nama = nama;
         this.email = email;
         this.password = password;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNama() {

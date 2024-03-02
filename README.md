@@ -1,4 +1,4 @@
-# Online Library Using Java Spring Boot and NuxtJs
+# Online Library Borrowing System Using Java Spring Boot, VueJs and PostgreSQL
 
 The Online Library Management System is a web application designed to manage an online library's borrowing system. It provides functionalities for users to register, login, borrow books, and for admins to track borrowing activities and manage books. The system is built using Java Spring Boot for the backend, Nuxt.js (Vue.js) for the frontend, and PostgreSQL for the database.
 
@@ -14,6 +14,9 @@ Video Demo : https://youtu.be/DqDnsQAV22I
 - Automatic Deadline: The borrowing system automatically sets a deadline for returning borrowed books.
 - Book Management (Admin): Admins can add new books to the library.
 
+Detail setup instructions and system requirements are already available in the `README.me` file inside the backend and frontend folders.
+
+
 ## Author
 
 - **Saifudin**
@@ -21,4 +24,3 @@ Video Demo : https://youtu.be/DqDnsQAV22I
   - LinkedIn: [https://www.linkedin.com/in/qsaifudin/](https://www.linkedin.com/in/qsaifudin/)
   - Personal Web: [https://qsaifudin.site/](https://qsaifudin.site/)
 
-Detail setup instructions and system requirements are already available in the `README.me` file inside the backend and frontend folders.
